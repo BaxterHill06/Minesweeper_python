@@ -13,9 +13,8 @@ def makeField(height, width):
     return field
 
 
-def addBombs(field, height, width):
+def addBombs(field, height, width,numOfBombs):
 
-    numOfBombs = 3
     # random position
     B = 0
     while B < numOfBombs:
@@ -82,21 +81,24 @@ def add_Numbers(field, height, width):
 def run():
     global field
     field = []
-    height = 4
-    width = 4
+    file = open("size.txt", "r")
+    for line in file:
+        size.append(line.strip("\n"))
+    height = int(size[0])
+    width = int(size[1])
+    numOfBombs = int(size[2])
     field = makeField(height, width)
-    field = addBombs(field, height, width)
+    field = addBombs(field, height, width, numOfBombs)
     add_Numbers(field, height, width)
     create(height, width)
 
 
 
-def btn1function(btnNum, width):
-    print("it worked", btnNum)
+def btn1function(x,y, width):
+    global field
     replace = Label(window,text="replace")
-    x = int((btnNum-1)%width)
-    y = int((btnNum-1)//width)
-    state = field[x][y]
+    print("x = ", x, "y = ", y)
+    state = field[y][x]
     print("state", state)
     if state == 0:
         imgType = image_0
@@ -113,16 +115,15 @@ def btn1function(btnNum, width):
     else:
         imgType = image_0
     replace.config(image=imgType)
-    replace.grid(row=(btnNum-1)//4, column=(btnNum-1)%4)
+    replace.grid(row=y, column=x)
     reveal_0(x,y)
 
 
 def create(height, width):
-    z = 1
     x = 0
     y = 0
     for btn in range(height * width):
-        createBtn(x, y, z, width)
+        createBtn(x, y, width)
         if x == 0:
             print("0")
             x += 1
@@ -131,12 +132,11 @@ def create(height, width):
             y += 1
         else:
             x += 1
-        z += 1
 
 #note you can pass x and y throw so no need for z calc
 
-def createBtn(x, y, z, width):
-    btn = Button(window, command= lambda: btn.grid_forget() + btn1function(z, width))
+def createBtn(x, y, width):
+    btn = Button(window, command= lambda: btn.grid_forget() + btn1function(x,y, width))
     btn.config(image=image_unknown)
     print("x is", x)
     print("y is", y)
@@ -191,7 +191,7 @@ def reveal_mines():
         X += 1
     '''end game'''
 
-
+size = []
 
 image_unknown = PhotoImage(file="unknown.gif")
 image_flag = PhotoImage(file="flag.gif")
