@@ -2,7 +2,7 @@ from tkinter import *
 import random
 
 window = Tk()
-window.geometry("300x400+500+20")
+window.geometry("700x700+20+20")
 
 def makeField(height, width):
     for h in range(height):
@@ -94,14 +94,14 @@ def run():
 
 
 
-def btn1function(x,y, width):
+def btn1function(x,y, height, width):
     global field
-    replace = Label(window,text="replace")
     print("x = ", x, "y = ", y)
     state = field[y][x]
     print("state", state)
     if state == 0:
         imgType = image_0
+        reveal_0(x,y)
     elif state == 1:
         imgType = image_1
     elif state == 2:
@@ -112,18 +112,18 @@ def btn1function(x,y, width):
         imgType = image_4
     elif state == "mine":
         imgType = image_mine
+        reveal_mines(height, width)
     else:
         imgType = image_0
     replace.config(image=imgType)
     replace.grid(row=y, column=x)
-    reveal_0(x,y)
 
 
 def create(height, width):
     x = 0
     y = 0
     for btn in range(height * width):
-        createBtn(x, y, width)
+        createBtn(x, y, height, width)
         if x == 0:
             print("0")
             x += 1
@@ -135,57 +135,71 @@ def create(height, width):
 
 #note you can pass x and y throw so no need for z calc
 
-def createBtn(x, y, width):
-    btn = Button(window, command= lambda: btn.grid_forget() + btn1function(x,y, width))
+def createBtn(x, y, height, width):
+    btn = Button(window, command= lambda: btn.grid_forget() + btn1function(x,y, height, width))
     btn.config(image=image_unknown)
     print("x is", x)
     print("y is", y)
     btn.grid(row=y, column=x)
 
 def reveal_0(x,y):
+    space = [-1,0,1]
+    space2 = [-1,0,1]
+    for column in space:
+        print("run column")
+        for row in space2:
+            checkX = x + row
+            checkY = y + column
+            reveal(checkX, checkY)
+
+
+def reveal(x, y):
     global field
-    D = int(x)
-    E = int(y)
-    H = D
-    I = E
-    print("sgjrgbsruh")
-    F = 0
-    G = -1
-    A = E + F
-    B = D + G
-    while I < E + 1:
-        A = H + F
-        B = I + G
-        if field[A][B] == 0:
-            entry = field[A][B]
-            '''pickImage(entry)'''
-        if H == D and I == E:
-            H -= 1
-        elif H == D - 1 and I == E:
-            H += 2
-        elif H == D + 1 and I == E:
-            H = D
-            I -= 1
-        elif I == E - 1:
-            I += 2
-        print("e", E)
-        print("I", I)
+    print("this is x and y", x, y)
+    if x >= 0 and y >= 0 and x != 0 and y != 0:
+        state = field[y][x]
+        print("state", state)
+        if state == 0:
+            imgType = image_0
+            replace.config(image=imgType)
+            try:
+                replace.grid(row=y, column=x)
+            except:
+                print("not work")
+            reveal_0(x,y)
+        elif state == 1:
+            imgType = image_1
+        elif state == 2:
+            imgType = image_2
+        elif state == 3:
+            imgType = image_3
+        elif state == 4:
+            imgType = image_4
+        else:
+            imgType = image_0
+        replace.config(image=imgType)
+        try:
+            replace.grid(row=y, column=x)
+        except:
+            print("not work")
+    else:
+        print("negitive")
 
 
-def reveal_mines():
+def reveal_mines(height, width):
     global field
     global img_type
     global location
     print("check 0")
     X = 0
-    while X < 4:
+    while X < height:
         Y = 0
-        while Y < 4:
+        while Y < width:
             if field[X][Y] == "mine":
                 location = str(X)+ str(Y)
                 print("check 1")
                 img_type = image_mine
-                sort_location()
+                reveal(x,y)
                 print("check 2")
             Y += 1
         X += 1
@@ -209,7 +223,3 @@ replace = Button(window, text="btn1")
 list = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
 
 run()
-
-
-
-
