@@ -12,8 +12,6 @@ def makeField(height, width, field):
         field.append(row)
     return field
 
-
-
 def revealedArray(height, width, field):
     for h in range(height):
         row = []
@@ -248,6 +246,6 @@ image_mine = PhotoImage(file="mine.gif")
 
 
 revealed = []
-list = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
 
 run()
+window.mainloop()
