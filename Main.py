@@ -13,6 +13,15 @@ def makeField(height, width):
     return field
 
 
+
+def revealedArray(height, width):
+    for h in range(height):
+        row = []
+        for w in range(width):
+            row.append("unknown")
+        revealed.append(row)
+    return revealed
+
 def addBombs(field, height, width,numOfBombs):
 
     # random position
@@ -88,6 +97,7 @@ def run():
     width = int(size[1])
     numOfBombs = int(size[2])
     field = makeField(height, width)
+    revealedArray(height, width)
     field = addBombs(field, height, width, numOfBombs)
     add_Numbers(field, height, width)
     create(height, width)
@@ -96,12 +106,13 @@ def run():
 
 def btn1function(x,y, height, width):
     global field
+    replace = Label(window, text="btn1")
     print("x = ", x, "y = ", y)
     state = field[y][x]
     print("state", state)
     if state == 0:
         imgType = image_0
-        reveal_0(x,y)
+        reveal_0(x,y, height, width)
     elif state == 1:
         imgType = image_1
     elif state == 2:
@@ -117,7 +128,8 @@ def btn1function(x,y, height, width):
         imgType = image_0
     replace.config(image=imgType)
     replace.grid(row=y, column=x)
-
+    revealed[y][x] = "revealed"
+    
 
 def create(height, width):
     x = 0
@@ -142,7 +154,8 @@ def createBtn(x, y, height, width):
     print("y is", y)
     btn.grid(row=y, column=x)
 
-def reveal_0(x,y):
+def reveal_0(x,y , height, width):
+    print(revealed)
     space = [-1,0,1]
     space2 = [-1,0,1]
     for column in space:
@@ -150,24 +163,20 @@ def reveal_0(x,y):
         for row in space2:
             checkX = x + row
             checkY = y + column
-            reveal(checkX, checkY)
+            reveal(checkX, checkY, height, width)
 
 
-def reveal(x, y):
+def reveal(x, y , height, width):
     global field
+    replace = Label(window, text="btn1")
     print("this is x and y", x, y)
-    if x >= 0 and y >= 0:
-        if x != 0 and y != 0:
+    if x >= 0 and y >= 0 and x <= height-1 and y <= width-1:
+        if revealed[y][x] == "unknown":
             state = field[y][x]
             print("state", state)
             if state == 0:
-                imgType = image_0
-                replace.config(image=imgType)
-                try:
-                    replace.grid(row=y, column=x)
-                except:
-                    print("not work")
-                    reveal_0(x,y)
+                print("entered state 0")
+                revealSeperate(x, y, height, width)
             elif state == 1:
                 imgType = image_1
             elif state == 2:
@@ -181,13 +190,28 @@ def reveal(x, y):
             replace.config(image=imgType)
             try:
                 replace.grid(row=y, column=x)
+                revealed[y][x] = "revealed"
             except:
                 print("not work")
         else:
-            print("0,0")
+            print("all ready revealed")
     else:
         print("negitive")
 
+
+def revealSeperate(x,y, height , width):
+    replace = Label(window, text="btn1")
+    replace.config(image=image_0)
+    replace.grid(row=y, column=x)
+    revealed[y][x] = "revealed"
+    reveal_0(x,y, height ,width)
+
+
+
+
+
+
+    
 
 def reveal_mines(height, width):
     global field
@@ -206,7 +230,7 @@ def reveal_mines(height, width):
                 print("check 2")
             Y += 1
         X += 1
-    '''end game'''
+    '''end game'''  
 
 size = []
 
@@ -221,8 +245,8 @@ image_mine = PhotoImage(file="mine.gif")
 
 
 
-replace = Button(window, text="btn1")
 
+revealed = []
 list = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
 
 run()
