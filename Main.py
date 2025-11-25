@@ -179,15 +179,19 @@ def reveal(x, y , height, width):
                 revealSeperate(x, y, height, width)
             elif state == 1:
                 imgType = image_1
+                replace.config(image=imgType)
             elif state == 2:
                 imgType = image_2
+                replace.config(image=imgType)
             elif state == 3:
                 imgType = image_3
+                replace.config(image=imgType)
             elif state == 4:
                 imgType = image_4
+                replace.config(image=imgType)
             else:
                 imgType = image_0
-            replace.config(image=imgType)
+                replace.config(image=imgType)
             try:
                 replace.grid(row=y, column=x)
                 revealed[y][x] = "revealed"
