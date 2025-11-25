@@ -101,7 +101,9 @@ def run():
 
 
 
-def btn1function(x,y, height, width, field):
+def btn1function(x,y, height, width, field, btn):
+    #btn.grid_forget()
+    """
     replace = Label(window, text="btn1")
     print("x = ", x, "y = ", y)
     state = field[y][x]
@@ -125,7 +127,7 @@ def btn1function(x,y, height, width, field):
     replace.config(image=imgType)
     replace.grid(row=y, column=x)
     revealed[y][x] = "revealed"
-    
+    """
 
 def create(height, width, field):
     x = 0
@@ -144,8 +146,8 @@ def create(height, width, field):
 #note you can pass x and y throw so no need for z calc
 
 def createBtn(x, y, height, width, field):
-    btn = Button(window, command= lambda: btn.grid_forget() + btn1function(x,y, height, width, field))
-    btn.config(image=image_unknown)
+    btn = Label(window,image=image_unknown)
+    btn.bind("<Button-1>", btn1function(x,y, height, width, field, btn))
     print("x is", x)
     print("y is", y)
     btn.grid(row=y, column=x)
