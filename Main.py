@@ -1,8 +1,24 @@
 from tkinter import *
 import random
+import threading
+import time
 
 window = Tk()
-window.geometry("700x700+20+20")
+window.geometry("900x900+20+20")
+
+
+def ChangeMode():
+    global mode
+    print(mode)
+    if mode == "Flag":
+        btnMode.config(image=image_unknown)
+        mode = "Dig"
+        lblMode.config(text="Change mode to Flag")
+    else:
+        btnMode.config(image=image_flag)
+        mode = "Flag"
+        lblMode.config(text="Change mode to Dig")
+
 
 def makeField(height, width, field):
     for h in range(height):
@@ -86,6 +102,23 @@ def add_Numbers(field, height, width):
 
 
 def run():
+    global mode, frmGrid, frmBar, lblTimer, lblMode, btnMode, revealed, seconds, minutes
+    frmGrid = Frame(window)
+    frmBar = Frame(window)
+
+    lblTimer = Label(frmBar, text="0:00")
+    lblMode = Label(frmBar, text="Change mode to Flag")
+    mode = "Flag"
+    btnMode = Button(frmBar, image=image_unknown, command=ChangeMode)
+    lblTimer.pack()
+    lblMode.pack()
+    btnMode.pack()
+
+    seconds = 0
+    minutes = 0
+
+    revealed = []
+
     field = []
     file = open("size.txt", "r")
     for line in file:
@@ -98,36 +131,71 @@ def run():
     field = addBombs(field, height, width, numOfBombs)
     add_Numbers(field, height, width)
     create(height, width, field)
+    try:
+        frmRestart.grid_forget()
+    except:
+        pass
+    frmGrid.grid(column=0, row=0)
+    frmBar.grid(column=1, row=0)
+    mode = "Dig"
 
 
 
-def btn1function(x,y, height, width, field, btn):
-    #btn.grid_forget()
-    """
-    replace = Label(window, text="btn1")
-    print("x = ", x, "y = ", y)
-    state = field[y][x]
-    print("state", state)
-    if state == 0:
-        imgType = image_0
-        reveal_0(x,y, height, width, field)
-    elif state == 1:
-        imgType = image_1
-    elif state == 2:
-        imgType = image_2
-    elif state == 3:
-        imgType = image_3
-    elif state == 4:
-        imgType = image_4
-    elif state == "mine":
-        imgType = image_mine
-        reveal_mines(x,y,height, width, field)
+def btn1function(x,y, height, width, field):
+    global mode, revealed
+    if mode == "Dig":
+        replace = Label(frmGrid, text="btn1")
+        print("x = ", x, "y = ", y)
+        state = field[y][x]
+        print("state", state)
+        if state == 0:
+            imgType = image_0
+            reveal_0(x,y, height, width, field)
+        elif state == 1:
+            imgType = image_1
+        elif state == 2:
+            imgType = image_2
+        elif state == 3:
+            imgType = image_3
+        elif state == 4:
+            imgType = image_4
+        elif state == "mine":
+            imgType = image_mine
+            reveal_mines(x,y,height, width, field)
+        else:
+            imgType = image_0
+        replace.config(image=imgType)
+        replace.grid(row=y, column=x)
+        revealed[y][x] = "revealed"
     else:
-        imgType = image_0
-    replace.config(image=imgType)
-    replace.grid(row=y, column=x)
-    revealed[y][x] = "revealed"
-    """
+        replace = Button(frmGrid, text="btn1", command=lambda: createBtn(x, y, height, width, field))
+        replace.config(image=image_flag)
+        replace.grid(row=y, column=x)
+    done = True
+    for row in range(len(revealed)):
+        for column in range(len(revealed)):
+            if revealed[row][column] == "unknown":
+                if field[row][column] != "mine":
+                    done = False
+    if done == True:
+        Restart()
+    else:
+        print("NOT DONE")
+
+def Restart():
+    global times, frmGrid, frmBar, frmRestart
+    frmRestart = Frame(window)
+    lblTime = Label(frmRestart, text=times)
+    btnRestart = Button(frmRestart, text="RESTART", command=run)
+
+    lblTime.pack()
+    btnRestart.pack()
+
+    frmGrid.grid_forget()
+    frmBar.grid_forget()
+    frmRestart.grid()
+
+
 
 def create(height, width, field):
     x = 0
@@ -146,13 +214,16 @@ def create(height, width, field):
 #note you can pass x and y throw so no need for z calc
 
 def createBtn(x, y, height, width, field):
-    btn = Label(window,image=image_unknown)
-    btn.bind("<Button-1>", btn1function(x,y, height, width, field, btn))
-    print("x is", x)
-    print("y is", y)
-    btn.grid(row=y, column=x)
+    global mode
+    if mode == "Flag":
+        btn = Button(frmGrid, command= lambda: btn.grid_forget() + btn1function(x,y, height, width, field))
+        btn.config(image=image_unknown)
+        print("x is", x)
+        print("y is", y)
+        btn.grid(row=y, column=x)
 
 def reveal_0(x,y , height, width, field):
+    global revealed
     print(revealed)
     space = [-1,0,1]
     space2 = [-1,0,1]
@@ -165,7 +236,8 @@ def reveal_0(x,y , height, width, field):
 
 
 def reveal(x, y , height, width, field):
-    replace = Label(window, text="btn1")
+    global revealed
+    replace = Label(frmGrid, text="btn1")
     print("this is x and y", x, y)
     if x >= 0 and y >= 0 and x <= height-1 and y <= width-1:
         if revealed[y][x] == "unknown":
@@ -201,7 +273,8 @@ def reveal(x, y , height, width, field):
 
 
 def revealSeperate(x,y, height , width, field):
-    replace = Label(window, text="btn1")
+    global revealed
+    replace = Label(frmGrid, text="btn1")
     replace.config(image=image_0)
     replace.grid(row=y, column=x)
     revealed[y][x] = "revealed"
@@ -210,7 +283,7 @@ def revealSeperate(x,y, height , width, field):
 
 
 def gridMine(column, row):
-    replace = Label(window, text="btn1")
+    replace = Label(frmGrid, text="btn1")
     replace.config(image=image_mine)
     replace.grid(row=column, column=row)
 
@@ -219,7 +292,7 @@ def gridMine(column, row):
 
 def reveal_mines(x,y,height, width, field):
     global img_type
-    global location
+    global location, revealed
     print("check 0")
     print(field)
     X = 0
@@ -233,6 +306,27 @@ def reveal_mines(x,y,height, width, field):
                 print("check 2")
     '''end game'''  
 
+def Timer():
+    global seconds, minutes, times, frmGrid, frmBar, lblTimer, lblMode, btnMode
+    print("inside")
+    while True:
+        time.sleep(1)
+        print(seconds)
+        seconds += 1
+        if seconds == 60:
+            minutes += 1
+            seconds = 0
+        if len(str(seconds)) == 1:
+            strSeconds = "0" + str(seconds)
+        else:
+            strSeconds = str(seconds)
+        times = str(minutes) + ":" + strSeconds
+        lblTimer.config(text=times)
+
+
+def Screen():
+    window.mainloop()
+
 size = []
 
 image_unknown = PhotoImage(file="unknown.gif")
@@ -244,10 +338,16 @@ image_3 = PhotoImage(file="3.gif")
 image_4 = PhotoImage(file="4.gif")
 image_mine = PhotoImage(file="mine.gif")
 
-
-
+seconds = 0
+minutes = 0
 
 revealed = []
 
-run()
+if __name__ == "__main__":
+    main = threading.Thread(target=run)
+    secondary = threading.Thread(target=Timer)
+
+    main.start()
+    secondary.start()
+
 window.mainloop()
