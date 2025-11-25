@@ -156,32 +156,35 @@ def reveal_0(x,y):
 def reveal(x, y):
     global field
     print("this is x and y", x, y)
-    if x >= 0 and y >= 0 and x != 0 and y != 0:
-        state = field[y][x]
-        print("state", state)
-        if state == 0:
-            imgType = image_0
+    if x >= 0 and y >= 0:
+        if x != 0 and y != 0:
+            state = field[y][x]
+            print("state", state)
+            if state == 0:
+                imgType = image_0
+                replace.config(image=imgType)
+                try:
+                    replace.grid(row=y, column=x)
+                except:
+                    print("not work")
+                    reveal_0(x,y)
+            elif state == 1:
+                imgType = image_1
+            elif state == 2:
+                imgType = image_2
+            elif state == 3:
+                imgType = image_3
+            elif state == 4:
+                imgType = image_4
+            else:
+                imgType = image_0
             replace.config(image=imgType)
             try:
                 replace.grid(row=y, column=x)
             except:
                 print("not work")
-            reveal_0(x,y)
-        elif state == 1:
-            imgType = image_1
-        elif state == 2:
-            imgType = image_2
-        elif state == 3:
-            imgType = image_3
-        elif state == 4:
-            imgType = image_4
         else:
-            imgType = image_0
-        replace.config(image=imgType)
-        try:
-            replace.grid(row=y, column=x)
-        except:
-            print("not work")
+            print("0,0")
     else:
         print("negitive")
 
